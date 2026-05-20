@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Учёт Бутылок</title>
+    <style>
+        /* Основные стили и сброс */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #2b323f; /* Темно-синий фон */
+            color: #EC5E27; /* Ярко-оранжевый текст */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+
+        /* Центр: Счетчик */
+        .counter-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .bottle-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .counter-value {
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .money-value {
+            font-size: 1.5rem;
+            opacity: 0.6;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* Нижняя часть: Кнопки */
+        .buttons-container {
+            width: 100%;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: auto;
+        }
+
+        .btn {
+            background-color: transparent;
+            color: #EC5E27;
+            border: 2px solid #EC5E27;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            background-color: rgba(236, 94, 39, 0.1);
+            transform: scale(0.98);
+        }
+
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* Модальные окна (Поп-апы) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background-color: #2b323f;
+            border: 3px solid #EC5E27;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        /* Поля ввода внутри модалок */
+        .modal input[type="number"] {
+            width: 100%;
+            background: transparent;
+            border: 2px solid rgba(236, 94, 39, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            color: #EC5E27;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .modal input[type="number"]:focus {
+            border-color: #EC5E27;
+        }
+
+        /* Кнопки внутри модалок */
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal-btn.confirm {
+            background-color: #EC5E27;
+            color: #2b323f;
+        }
+
+        .modal-btn.cancel {
+            background-color: transparent;
+            color: #EC5E27;
+            border: 1px solid rgba(236, 94, 39, 0.5);
+        }
+
+        /* Стили для статистики */
+        .stats-list {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .stats-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stats-divider {
+            height: 2px;
+            background-color: rgba(236, 94, 39, 0.3);
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="counter-container">
+        <img src="icons/bottle.png" alt="Бутылка" class="bottle-icon">
+        <div class="counter-value" id="total-bottles">0</div>
+        <div class="money-value" id="total-money">0.00 ₪</div>
+    </div>
+
+    <div class="buttons-container">
+        <button class="btn" onclick="openModal('add-modal')">
+            <img src="icons/minus.png" alt="+" class="btn-icon">
+            Добавить банки
+        </button>
+        <button class="btn" onclick="openModal('remove-modal')">
+            <img src="icons/minus.png" alt="-" class="btn-icon">
+            Убавить банки
+        </button>
+        <button class="btn" onclick="openStatsModal()">
+            <img src="icons/stats.png" alt="Статистика" class="btn-icon">
+            Статистика
+        </button>
+    </div>
+
+    <script>
+        // (Здесь идет JavaScript-код, как в предыдущем коде)
+    </script>
+</body>
+</html>
