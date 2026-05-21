@@ -2,10 +2,30 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Учёт Бутылок</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BottleBank</title>
+
+    <!-- Иконка вкладки для браузеров -->
+    <link rel="icon" type="image/png" href="icons/bottle-bank.png">
+    <!-- Иконка для ярлыка на главном экране (iOS и Android) -->
+    <link rel="apple-touch-icon" href="icons/bottle-bank.png">
+    
+    <!-- Настройки для запуска как полноценного приложения без строк браузера -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
-        /* Основные стили и сброс */
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #2e7d32;
+            --danger-color: #c62828;
+            --text-main: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-radius: 16px;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -15,100 +35,124 @@
         }
 
         body {
-            background-color: #2b323f; /* Темно-синий фон */
-            color: #EC5E27; /* Ярко-оранжевый текст */
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
             min-height: 100vh;
-            padding: 40px 20px;
-            overflow: hidden;
+            padding: 16px;
         }
 
-        /* Центр: Счетчик */
-        .counter-container {
+        /* Шапка приложения */
+        header {
+            width: 100%;
+            max-width: 400px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            flex-grow: 1;
+            align-items: center;
+            padding: 12px 0;
+            margin-bottom: 24px;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
+
+        /* Главный контейнер счетчика */
+        .counter-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            padding: 24px;
             text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 24px;
         }
 
-        .bottle-icon {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            margin-bottom: 10px;
+        .counter-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
         }
 
-        .counter-value {
-            font-size: 4rem;
+        #bottle-count {
+            font-size: 3.5rem;
             font-weight: bold;
             line-height: 1;
         }
 
-        .money-value {
-            font-size: 1.5rem;
-            opacity: 0.6;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-
-        /* Нижняя часть: Кнопки */
-        .buttons-container {
-            width: 100%;
-            max-width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: auto;
-        }
-
-        .btn {
-            background-color: transparent;
-            color: #EC5E27;
-            border: 2px solid #EC5E27;
-            padding: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-
-        .btn:active {
-            background-color: rgba(236, 94, 39, 0.1);
-            transform: scale(0.98);
-        }
-
-        .btn-icon {
-            width: 20px;
-            height: 20px;
+        .bottle-icon {
+            width: 45px;
+            height: 45px;
             object-fit: contain;
         }
 
-        /* Модальные окна (Поп-апы) */
+        #money-count {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Кнопки управления в один ряд */
+        .actions-container {
+            width: 100%;
+            max-width: 400px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: var(--surface-color);
+            border: 1px solid #333;
+            border-radius: var(--border-radius);
+            color: var(--text-main);
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+            background: #2a2a2a;
+        }
+
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 10;
-            padding: 20px;
+            transition: opacity 0.2s ease;
+            padding: 16px;
         }
 
         .modal-overlay.active {
@@ -116,119 +160,317 @@
             pointer-events: auto;
         }
 
-        .modal {
-            background-color: #2b323f;
-            border: 3px solid #EC5E27;
-            border-radius: 20px;
-            padding: 25px;
+        .modal-content {
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: var(--border-radius);
             width: 100%;
-            max-width: 320px;
-            text-align: center;
+            max-width: 340px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
         }
 
-        .modal-overlay.active .modal {
+        .modal-overlay.active .modal-content {
             transform: scale(1);
         }
 
-        .modal h3 {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+        .modal-content h3 {
+            margin-bottom: 16px;
+            font-size: 1.2rem;
         }
 
-        /* Поля ввода внутри модалок */
-        .modal input[type="number"] {
+        .modal-input {
             width: 100%;
-            background: transparent;
-            border: 2px solid rgba(236, 94, 39, 0.5);
-            border-radius: 8px;
             padding: 12px;
-            color: #EC5E27;
+            background: #121212;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: var(--text-main);
             font-size: 1.2rem;
             text-align: center;
             margin-bottom: 20px;
             outline: none;
         }
 
-        .modal input[type="number"]:focus {
-            border-color: #EC5E27;
+        .modal-input:focus {
+            border-color: var(--primary-color);
         }
 
-        /* Кнопки внутри модалок */
-        .modal-actions {
+        .modal-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .modal-btn {
+        .btn {
             flex: 1;
             padding: 12px;
+            border: none;
             border-radius: 8px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            border: none;
         }
 
-        .modal-btn.confirm {
-            background-color: #EC5E27;
-            color: #2b323f;
-        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-secondary { background: #333; color: var(--text-main); }
 
-        .modal-btn.cancel {
-            background-color: transparent;
-            color: #EC5E27;
-            border: 1px solid rgba(236, 94, 39, 0.5);
-        }
-
-        /* Стили для статистики */
-        .stats-list {
+        /* Окно статистики */
+        .stats-content {
+            max-width: 380px;
             text-align: left;
-            margin-bottom: 20px;
-            font-size: 1.05rem;
-            line-height: 1.6;
         }
 
-        .stats-line {
+        .stats-content h3 { text-align: center; }
+
+        .stats-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .stats-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 0.95rem;
         }
 
-        .stats-divider {
-            height: 2px;
-            background-color: rgba(236, 94, 39, 0.3);
-            margin: 15px 0;
+        .stats-val {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .trend {
+            font-size: 0.8rem;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+
+        .trend.up { color: #4caf50; }
+        .trend.down { color: #f44336; }
+        .trend.stable { color: #888888; }
+
+        .divider {
+            height: 1px;
+            background: #333;
+            margin: 12px 0;
         }
     </style>
 </head>
 <body>
 
+    <!-- Хедер приложения -->
+    <header>
+        <div class="app-title">BOTTLE BANK</div>
+    </header>
+
+    <!-- Главный экран: Текущий остаток -->
     <div class="counter-container">
-        <img src="icons/bottle.png" alt="Бутылка" class="bottle-icon">
-        <div class="counter-value" id="total-bottles">0</div>
-        <div class="money-value" id="total-money">0.00 ₪</div>
+        <div class="counter-row">
+            <span id="bottle-count">0</span>
+            <img src="icons/bottle.png" alt="бутылка" class="bottle-icon">
+        </div>
+        <div id="money-count">0.00 ₪</div>
     </div>
 
-    <div class="buttons-container">
-        <button class="btn" onclick="openModal('add-modal')">
-            <img src="icons/minus.png" alt="+" class="btn-icon">
-            Добавить банки
+    <!-- Кнопки управления -->
+    <div class="actions-container">
+        <button class="action-btn" onclick="openModal('add-modal')">
+            <img src="icons/add.png" alt="Добавить" class="btn-icon">
+            <span>Добавить</span>
         </button>
-        <button class="btn" onclick="openModal('remove-modal')">
-            <img src="icons/minus.png" alt="-" class="btn-icon">
-            Убавить банки
+        <button class="action-btn" onclick="openModal('reduce-modal')">
+            <img src="icons/reduce.png" alt="Убавить" class="btn-icon">
+            <span>Убавить</span>
         </button>
-        <button class="btn" onclick="openStatsModal()">
+        <button class="action-btn" onclick="openModal('stats-modal')">
             <img src="icons/stats.png" alt="Статистика" class="btn-icon">
-            Статистика
+            <span>Статистика</span>
         </button>
     </div>
 
+    <!-- Модальное окно: Добавить -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-content">
+            <h3>Сколько добавить?</h3>
+            <input type="number" id="input-add" class="modal-input" placeholder="0" min="1" pattern="[0-9]*">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('add-modal')">Отмена</button>
+                <button class="btn btn-primary" onclick="handleAction('add')">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Убавить -->
+    <div class="modal-overlay" id="reduce-modal">
+        <div class="modal-content">
+            <h3>Сколько убавить?</h3>
+            <input type="number" id="input-reduce" class="modal-input" placeholder="0" min="1" pattern="[0-9]*">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('reduce-modal')">Отмена</button>
+                <button class="btn btn-primary" onclick="handleAction('reduce')">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Статистика -->
+    <div class="modal-overlay" id="stats-modal">
+        <div class="modal-content stats-content">
+            <h3>Статистика</h3>
+            <div class="divider"></div>
+            <ul class="stats-list">
+                <li class="stats-item">
+                    <span>Всего собрано бутылок:</span>
+                    <span class="stats-val" id="stat-total-bottles">0</span>
+                </li>
+                <li class="stats-item">
+                    <span>Всего собрано денег:</span>
+                    <span class="stats-val" id="stat-total-money">0.00 ₪</span>
+                </li>
+                
+                <div class="divider"></div>
+                
+                <li class="stats-item">
+                    <span>Собрано за месяц:</span>
+                    <span class="stats-val" id="stat-month-collected">0</span>
+                </li>
+                <li class="stats-item">
+                    <span>Сдано за месяц:</span>
+                    <span class="stats-val" id="stat-month-reduced">0</span>
+                </li>
+                <li class="stats-item">
+                    <span>Собрано за неделю:</span>
+                    <span class="stats-val" id="stat-week-collected">0</span>
+                </li>
+                <li class="stats-item">
+                    <span>Сдано за неделю:</span>
+                    <span class="stats-val" id="stat-week-reduced">0</span>
+                </li>
+            </ul>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="closeModal('stats-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Логика расчёта и хранения данных -->
     <script>
-        // (Здесь идет JavaScript-код, как в предыдущем коде)
+        const BOTTLE_PRICE = 0.3;
+
+        // Структура базы данных в localStorage
+        let db = JSON.parse(localStorage.getItem('bottle_bank_db')) || {
+            current_stock: 0,       // Сколько в хранилище сейчас
+            total_collected: 0,     // Всего собрано за всё время
+            total_money: 0,         // Всего заработано денег
+            history: []             // Лог всех операций для вычисления периодов
+        };
+
+        // Вспомогательные функции для работы с датами
+        function isCurrentWeek(dateStr) {
+            const opDate = new Date(dateStr);
+            const now = new Date();
+            const oneDay = 24 * 60 * 60 * 1000;
+            // Разница в днях между сегодня и операцией
+            const diffDays = Math.floor((now - opDate) / oneDay);
+            return diffDays <= 7;
+        }
+
+        function isCurrentMonth(dateStr) {
+            const opDate = new Date(dateStr);
+            const now = new Date();
+            return opDate.getMonth() === now.getMonth() && opDate.getFullYear() === now.getFullYear();
+        }
+
+        // Обновление интерфейса на основе данных из базы
+        function updateUI() {
+            // 1. Обновляем главный экран
+            document.getElementById('bottle-count').textContent = db.current_stock;
+            const currentMoney = (db.current_stock * BOTTLE_PRICE).toFixed(2);
+            document.getElementById('money-count').textContent = `${currentMoney} ₪`;
+
+            // 2. Рассчитываем динамическую статистику по истории операций
+            let weekCollected = 0;
+            let weekReduced = 0;
+            let monthCollected = 0;
+            let monthReduced = 0;
+
+            db.history.forEach(op => {
+                if (isCurrentWeek(op.date)) {
+                    if (op.type === 'add') weekCollected += op.amount;
+                    if (op.type === 'reduce') weekReduced += op.amount;
+                }
+                if (isCurrentMonth(op.date)) {
+                    if (op.type === 'add') monthCollected += op.amount;
+                    if (op.type === 'reduce') monthReduced += op.amount;
+                }
+            });
+
+            // 3. Выводим рассчитанные данные в окно статистики
+            document.getElementById('stat-total-bottles').textContent = db.total_collected;
+            document.getElementById('stat-total-money').textContent = `${db.total_money.toFixed(2)} ₪`;
+            
+            document.getElementById('stat-month-collected').innerHTML = `${monthCollected} <span class="trend stable">↔</span>`;
+            document.getElementById('stat-month-reduced').innerHTML = `${monthReduced} <span class="trend stable">↔</span>`;
+            document.getElementById('stat-week-collected').innerHTML = `${weekCollected} <span class="trend stable">↔</span>`;
+            document.getElementById('stat-week-reduced').innerHTML = `${weekReduced} <span class="trend stable">↔</span>`;
+
+            // Сохраняем состояние базы данных в память
+            localStorage.setItem('bottle_bank_db', JSON.stringify(db));
+        }
+
+        // Обработка добавления и удаления
+        function handleAction(type) {
+            const inputId = type === 'add' ? 'input-add' : 'input-reduce';
+            const inputEl = document.getElementById(inputId);
+            const amount = parseInt(inputEl.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('Пожалуйста, введите корректное число');
+                return;
+            }
+
+            const timestamp = new Date().toISOString();
+
+            if (type === 'add') {
+                db.current_stock += amount;
+                db.total_collected += amount;
+                db.total_money += (amount * BOTTLE_PRICE);
+                
+                // Добавляем запись в лог
+                db.history.push({ type: 'add', amount: amount, date: timestamp });
+            } else {
+                if (db.current_stock - amount < 0) {
+                    alert('Ошибка: в хранилище нет такого количества бутылок!');
+                    return;
+                }
+                db.current_stock -= amount;
+                
+                // Добавляем запись в лог
+                db.history.push({ type: 'reduce', amount: amount, date: timestamp });
+            }
+
+            updateUI();
+            closeModal(`${type}-modal`);
+        }
+
+        // Управление окнами
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('active');
+            const input = modal.querySelector('input');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Первичный запуск
+        updateUI();
     </script>
 </body>
 </html>
